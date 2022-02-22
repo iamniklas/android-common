@@ -1,0 +1,35 @@
+<resources>
+    <string name="login_goto_register">Don\'t have an account yet? <u>Register now!</u></string>
+
+    <string name="register_goto_login">Already have an account? <u>Go to Login!</u></string>
+
+    <string name="alert_dialog_remote_config_error_title">Whoops!</string>
+    <string name="alert_dialog_remote_config_error_fetch">Failed to fetch app configuration. Please check your network connection and try again.</string>
+
+    <string name="alert_dialog_network_error_title">Network Error</string>
+    <string name="alert_dialog_network_error_invalid_credentials">Unable to connect to the server! Please check your network and settings and try again!</string>
+    <string name="alert_dialog_network_error_invalid_broker_address">The broker address is not valid! Please check your configuration and try again!</string>
+    <string name="alert_dialog_network_error_network_timeout">Network connection timed out! Check your internet connection and try again. It is also possible that the server is offline. In that case, try again later.</string>
+
+    <string name="alert_dialog_action_tag_error_title">Action Tag Error</string>
+    <string name="alert_dialog_action_tag_error_chip_data"></string>
+    <string name="alert_dialog_action_tag_error_cloud_no_data"></string>
+    <string name="alert_dialog_action_tag_error_cloud_invalid_data"></string>
+
+    <string name="alert_dialog_device_link_error_title">Device Link Error</string>
+    <string name="alert_dialog_device_link_error_network">Unable to link the device to your phone! This may be caused by a network error or an invalid device name. Please try again.</string>
+    <string name="alert_dialog_device_link_error_database"></string>
+    <string name="alert_dialog_device_link_error_invalid_name"></string>
+
+    <string name="alert_dialog_configuration_error_title">Configuration Error</string>
+    <string name="alert_dialog_configuration_error_store"></string>
+    <string name="alert_dialog_configuration_error_read"></string>
+    <string name="alert_dialog_configuration_error_invalid_data"></string>
+
+    <string name="alert_dialog_invalid_script_error_title">Invalid Script</string>
+    <string name="alert_dialog_invalid_script_error_cloud_save"></string>
+    <string name="alert_dialog_invalid_script_error_syntax">It seems like your scripted procedure is invalid. Please check your script for any errors and try again.\n\nStacktrace:\n%1$s</string>
+    <string name="alert_dialog_invalid_script_error_other"></string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

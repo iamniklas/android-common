@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_goto_register">Don\'t have an account yet? <u>Register now!</u></string>
+
+    <string name="register_goto_login">Already have an account? <u>Go to Login!</u></string>
+</resources>
