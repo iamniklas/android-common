@@ -1,6 +1,6 @@
 # AndroidCommon
 
-[![](https://jitpack.io/v/iamniklas/AndroidCommon.svg)](https://jitpack.io/#iamniklas/AndroidCommon)
+[![](https://jitpack.io/v/iamniklas/android-common.svg)](https://jitpack.io/#iamniklas/android-common)
 
 AndroidCommon is a collection of some widely used implementations for various topics related to the Android library. 
 The library covers topics like authentication (login and registration via Firebase with Google-SignIn and Email-SignIn), some common Firebase Services like Firestore and Remote Configuration, and many more.
