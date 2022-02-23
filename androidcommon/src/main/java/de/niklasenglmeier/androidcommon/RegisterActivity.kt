@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
+import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -31,12 +32,20 @@ internal class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+
         authenticationData = intent.getParcelableExtra(AuthenticationData.IntentKey.PARCELABLE_EXTRA)!!
 
         supportActionBar!!.title =
             if (authenticationData.showAppNameInSupportActionBar)
                 "${authenticationData.appName} Registration"
             else "Registration"
+
+        if(authenticationData.showAppIcon) {
+            binding.imageViewRegister.setImageDrawable(getDrawable(R.mipmap.ic_launcher))
+        } else {
+            binding.imageViewRegister.visibility = View.GONE
+        }
 
         if(authenticationData.firebaseInteractionMask.flagIsSet(FirebaseInteractions.RemoteConfig)) {
             RemoteConfigFetches.getRemoteConfig(
@@ -97,6 +106,8 @@ internal class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            binding.progressBarLogin.isIndeterminate = true
+
             if(authenticationData.firebaseInteractionMask.flagIsSet(FirebaseInteractions.Authorization)) {
                 FirebaseAuthHandler
                     .Email
@@ -119,15 +130,18 @@ internal class RegisterActivity : AppCompatActivity() {
                                             .getUserInfo(
                                                 true,
                                                 {
+                                                    binding.progressBarLogin.isIndeterminate = false
                                                     finishActivityForResult(ResultCode.SUCCESS)
                                                 },
                                                 {
                                                     //User Data does not exist
                                                     FirestoreStandardPushes.Users.createNewUserEntry(
                                                         {
+                                                            binding.progressBarLogin.isIndeterminate = false
                                                             finishActivityForResult(ResultCode.SUCCESS)
                                                         },
                                                         { userDataCreationError ->
+                                                            binding.progressBarLogin.isIndeterminate = false
                                                             finishActivityForResult(ResultCode.ERROR, userDataCreationError)
                                                         })
                                                 },
@@ -136,6 +150,7 @@ internal class RegisterActivity : AppCompatActivity() {
                                                 }
                                             )
                                     } else {
+                                        binding.progressBarLogin.isIndeterminate = false
                                         finishActivityForResult(ResultCode.SUCCESS)
                                     }
                                 }
@@ -167,5 +182,6 @@ internal class RegisterActivity : AppCompatActivity() {
         }
         setResult(resultCode, returnIntent)
         finish()
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
 }

@@ -6,6 +6,7 @@ import de.niklasenglmeier.androidcommon.firebase.auth.AuthTypes
 
 class AuthenticationData(val appName: String,
                          val showAppNameInSupportActionBar: Boolean,
+                         val showAppIcon: Boolean,
                          val firebaseInteractionMask: Int,
                          val authTypes: Int,
                          val googleAuthId : String?) : Parcelable {
@@ -17,6 +18,7 @@ class AuthenticationData(val appName: String,
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
         parcel.readInt() == 1,
+        parcel.readInt() == 1,
         parcel.readInt(),
         parcel.readInt(),
         parcel.readString()!!
@@ -25,6 +27,7 @@ class AuthenticationData(val appName: String,
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(appName)
         parcel.writeInt(if (showAppNameInSupportActionBar) 1 else 0)
+        parcel.writeInt(if (showAppIcon) 1 else 0)
         parcel.writeInt(firebaseInteractionMask)
         parcel.writeInt(authTypes)
         parcel.writeString(googleAuthId)

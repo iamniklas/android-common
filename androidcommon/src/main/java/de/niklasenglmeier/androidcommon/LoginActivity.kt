@@ -40,14 +40,14 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var authenticationData: AuthenticationData
 
-    private lateinit var googleSignInIntent: Intent
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        FirebaseApp.initializeApp(applicationContext)
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+
+        //FirebaseApp.initializeApp(applicationContext)
 
         authenticationData = intent.getParcelableExtra(AuthenticationData.IntentKey.PARCELABLE_EXTRA)!!
 
@@ -55,6 +55,12 @@ class LoginActivity : AppCompatActivity() {
             if (authenticationData.showAppNameInSupportActionBar)
                 "${authenticationData.appName} Login"
             else "Login"
+
+        if(authenticationData.showAppIcon) {
+            binding.imageViewLogin.setImageDrawable(getDrawable(R.mipmap.ic_launcher))
+        } else {
+            binding.imageViewLogin.visibility = View.GONE
+        }
 
         if(authenticationData.authTypes.flagIsSet(AuthTypes.GOOGLE)) {
             val gso =
@@ -82,7 +88,7 @@ class LoginActivity : AppCompatActivity() {
                     applicationContext,
                     {
                         if(it.getBoolean(RemoteConfigFetches.GOOGLE_LOGIN_AVAILABLE)) {
-                            binding.buttonGoogleSignIn.isEnabled = true
+                            binding.buttonGoogleSignIn.isClickable = true
                         }
 
                         if(it.getBoolean(RemoteConfigFetches.EMAIL_LOGIN_AVAILABLE)) {
@@ -98,6 +104,7 @@ class LoginActivity : AppCompatActivity() {
                 )
         } else {
             binding.buttonLoginEmail.isEnabled = true
+            binding.buttonGoogleSignIn.isClickable = true
             binding.textInputLayoutLoginPassword.isEnabled = true
             binding.textInputLayoutLoginEmail.isEnabled = true
             binding.checkBoxShowPassword.isEnabled = true
@@ -174,7 +181,32 @@ class LoginActivity : AppCompatActivity() {
                                         }
                                     ).show()
                             } else {
-                                finishActivityForResult(ResultCode.SUCCESS)
+                                if(authenticationData.firebaseInteractionMask.flagIsSet(FirebaseInteractions.FirestoreUser)) {
+                                    FirestoreStandardFetches
+                                        .Users
+                                        .getUserInfo(
+                                            true,
+                                            {
+                                                finishActivityForResult(ResultCode.SUCCESS)
+                                            },
+                                            {
+                                                //User Data does not exist
+                                                FirestoreStandardPushes.Users.createNewUserEntry(
+                                                    {
+                                                        finishActivityForResult(ResultCode.SUCCESS)
+                                                    },
+                                                    {
+                                                        finishActivityForResult(ResultCode.ERROR, it)
+                                                    })
+                                            },
+                                            {
+                                                finishActivityForResult(ResultCode.ERROR, it)
+                                            }
+                                        )
+                                }
+                                else {
+                                    finishActivityForResult(ResultCode.SUCCESS)
+                                }
                             }
                         }
                     ) {
@@ -203,21 +235,39 @@ class LoginActivity : AppCompatActivity() {
                         if (task.isSuccessful) {
                             try {
                                 val account = task.getResult(ApiException::class.java)!!
-
-                                if(Firebase.auth.currentUser == null) {
-                                    Toast.makeText(applicationContext, "Firebase Auth failed", Toast.LENGTH_LONG).show()
-                                } else {
-                                    Toast.makeText(applicationContext, Firebase.auth.currentUser!!.email, Toast.LENGTH_LONG).show()
-                                }
-
                                 val credential = GoogleAuthProvider.getCredential(account.idToken!!, null)
 
                                 Firebase.auth.signInWithCredential(credential)
                                     .addOnSuccessListener {
-                                        finishActivityForResult(ResultCode.SUCCESS)
+                                        if(authenticationData.firebaseInteractionMask.flagIsSet(FirebaseInteractions.FirestoreUser)) {
+                                            FirestoreStandardFetches
+                                                .Users
+                                                .getUserInfo(
+                                                    true,
+                                                    {
+                                                        finishActivityForResult(ResultCode.SUCCESS)
+                                                    },
+                                                    {
+                                                        //User Data does not exist
+                                                        FirestoreStandardPushes
+                                                            .Users
+                                                            .createNewUserEntry(
+                                                                {
+                                                                    finishActivityForResult(ResultCode.SUCCESS)
+                                                                },
+                                                                {
+                                                                    finishActivityForResult(ResultCode.ERROR, it)
+                                                                }
+                                                            )
+                                                    },
+                                                    {
+                                                        Toast.makeText(applicationContext, it.message, Toast.LENGTH_LONG).show()
+                                                    })
+                                        } else {
+                                            finishActivityForResult(ResultCode.SUCCESS)
+                                        }
                                     }
                                     .addOnFailureListener { signInWithCredentialError ->
-                                        Toast.makeText(applicationContext, signInWithCredentialError.message, Toast.LENGTH_LONG).show()
                                         finishActivityForResult(ResultCode.ERROR, signInWithCredentialError)
                                     }
                                     .addOnCompleteListener {
@@ -256,6 +306,7 @@ class LoginActivity : AppCompatActivity() {
         }
         setResult(resultCode, returnIntent)
         finish()
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
 
     companion object {
