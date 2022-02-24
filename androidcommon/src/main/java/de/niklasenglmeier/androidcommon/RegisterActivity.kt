@@ -10,11 +10,10 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import de.niklasenglmeier.androidcommon.activitydata.AuthenticationData
 import de.niklasenglmeier.androidcommon.databinding.ActivityRegisterBinding
-import de.niklasenglmeier.androidcommon.extensions.IntExtensions.flagIsSet
+import de.niklasenglmeier.androidcommon.extensions.LongExtensions.flagIsSet
 import de.niklasenglmeier.androidcommon.extensions.TextInputLayoutExtensions.validateEmailInput
 import de.niklasenglmeier.androidcommon.extensions.TextInputLayoutExtensions.validatePasswordInput
 import de.niklasenglmeier.androidcommon.extensions.TextInputLayoutExtensions.validatePasswordRepeat
-import de.niklasenglmeier.androidcommon.firebase.FirebaseInteractions
 import de.niklasenglmeier.androidcommon.firebase.auth.FirebaseAuthHandler
 import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardFetches
 import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardPushes
@@ -41,15 +40,14 @@ internal class RegisterActivity : AppCompatActivity() {
                 "${authenticationData.appName} Registration"
             else "Registration"
 
-        if(authenticationData.showAppIcon) {
+        if(authenticationData.authIcon != null) {
             binding.imageViewRegister.setImageDrawable(getDrawable(R.mipmap.ic_launcher))
         } else {
             binding.imageViewRegister.visibility = View.GONE
         }
 
-        if(authenticationData.firebaseInteractionMask.flagIsSet(FirebaseInteractions.RemoteConfig)) {
+        if(authenticationData.flags.flagIsSet(AuthenticationData.Flags.FIREBASE_USE_REMOTE_CONFIG)) {
             RemoteConfigFetches.getRemoteConfig(
-                applicationContext,
                 {
                     if(it.getBoolean(RemoteConfigFetches.EMAIL_REGISTRATION_AVAILABLE)) {
                         binding.buttonRegisterEmail.isEnabled = true
@@ -88,7 +86,6 @@ internal class RegisterActivity : AppCompatActivity() {
         binding.buttonRegisterEmail.setOnClickListener {
             val email = binding.textInputLayoutRegisterEmail.editText!!.editableText.toString().trim()
             val password = binding.textInputLayoutRegisterPassword.editText!!.editableText.toString().trim()
-            val passwordRepeat = binding.textInputLayoutRegisterRepeatPassword.editText!!.editableText.toString().trim()
 
             var error = false
 
@@ -108,62 +105,58 @@ internal class RegisterActivity : AppCompatActivity() {
 
             binding.progressBarLogin.isIndeterminate = true
 
-            if(authenticationData.firebaseInteractionMask.flagIsSet(FirebaseInteractions.Authorization)) {
-                FirebaseAuthHandler
-                    .Email
-                    .performEmailRegistration(
-                        email,
-                        password,
-                        {
-                            Toast.makeText(applicationContext, "Please verify your email address by following the instructions we sent you to $email", Toast.LENGTH_LONG).show()
-                            Firebase.auth.currentUser!!.sendEmailVerification()
-                                .addOnSuccessListener {
-                                    Toast.makeText(applicationContext, "Verification Email sent", Toast.LENGTH_LONG).show()
+            FirebaseAuthHandler
+                .Email
+                .performEmailRegistration(
+                    email,
+                    password,
+                    {
+                        Toast.makeText(applicationContext, "Please verify your email address by following the instructions we sent you to $email", Toast.LENGTH_LONG).show()
+                        Firebase.auth.currentUser!!.sendEmailVerification()
+                            .addOnSuccessListener {
+                                Toast.makeText(applicationContext, "Verification Email sent", Toast.LENGTH_LONG).show()
+                            }
+                            .addOnFailureListener { sendEmailVerificationError ->
+                                Toast.makeText(applicationContext, "Verification Email Error ${sendEmailVerificationError.message.toString()}", Toast.LENGTH_LONG).show()
+                            }
+                            .addOnCompleteListener {
+                                if(authenticationData.flags.flagIsSet(AuthenticationData.Flags.FIREBASE_USE_FIRESTORE)) {
+                                    FirestoreStandardFetches
+                                        .Users
+                                        .getUserInfo(
+                                            true,
+                                            {
+                                                binding.progressBarLogin.isIndeterminate = false
+                                                finishActivityForResult(ResultCode.SUCCESS)
+                                            },
+                                            {
+                                                //User Data does not exist
+                                                FirestoreStandardPushes.Users.createNewUserEntry(
+                                                    {
+                                                        binding.progressBarLogin.isIndeterminate = false
+                                                        finishActivityForResult(ResultCode.SUCCESS)
+                                                    },
+                                                    { userDataCreationError ->
+                                                        binding.progressBarLogin.isIndeterminate = false
+                                                        finishActivityForResult(ResultCode.ERROR, userDataCreationError)
+                                                    })
+                                            },
+                                            {
+                                                Toast.makeText(applicationContext, it.message, Toast.LENGTH_LONG).show()
+                                            }
+                                        )
+                                } else {
+                                    binding.progressBarLogin.isIndeterminate = false
+                                    finishActivityForResult(ResultCode.SUCCESS)
                                 }
-                                .addOnFailureListener { sendEmailVerificationError ->
-                                    Toast.makeText(applicationContext, "Verification Email Error ${sendEmailVerificationError.message.toString()}", Toast.LENGTH_LONG).show()
-                                }
-                                .addOnCompleteListener {
-                                    if(authenticationData.firebaseInteractionMask.flagIsSet(FirebaseInteractions.FirestoreUser)) {
-                                        FirestoreStandardFetches
-                                            .Users
-                                            .getUserInfo(
-                                                true,
-                                                {
-                                                    binding.progressBarLogin.isIndeterminate = false
-                                                    finishActivityForResult(ResultCode.SUCCESS)
-                                                },
-                                                {
-                                                    //User Data does not exist
-                                                    FirestoreStandardPushes.Users.createNewUserEntry(
-                                                        {
-                                                            binding.progressBarLogin.isIndeterminate = false
-                                                            finishActivityForResult(ResultCode.SUCCESS)
-                                                        },
-                                                        { userDataCreationError ->
-                                                            binding.progressBarLogin.isIndeterminate = false
-                                                            finishActivityForResult(ResultCode.ERROR, userDataCreationError)
-                                                        })
-                                                },
-                                                {
-                                                    Toast.makeText(applicationContext, it.message, Toast.LENGTH_LONG).show()
-                                                }
-                                            )
-                                    } else {
-                                        binding.progressBarLogin.isIndeterminate = false
-                                        finishActivityForResult(ResultCode.SUCCESS)
-                                    }
-                                }
-                        },
-                        { emailRegistrationError ->
-                            Toast.makeText(applicationContext, emailRegistrationError.message, Toast.LENGTH_LONG).show()
-                            finishActivityForResult(ResultCode.ERROR, emailRegistrationError)
-                        },
-                        { }
-                    )
-            } else {
-                finishActivityForResult(ResultCode.ERROR, Exception("Authentication Flag not set"))
-            }
+                            }
+                    },
+                    { emailRegistrationError ->
+                        Toast.makeText(applicationContext, emailRegistrationError.message, Toast.LENGTH_LONG).show()
+                        finishActivityForResult(ResultCode.ERROR, emailRegistrationError)
+                    },
+                    { }
+                )
         }
 
         binding.textViewRegisterLogin.setOnClickListener {

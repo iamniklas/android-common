@@ -1,7 +1,7 @@
 package de.niklasenglmeier.androidcommon.extensions
 
-object IntExtensions {
-    fun Int.flagIsSet(flag: Int) : Boolean {
+object LongExtensions {
+    fun Long.flagIsSet(flag: Long) : Boolean {
         return this and flag == flag
     }
 }

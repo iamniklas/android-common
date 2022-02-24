@@ -2,14 +2,27 @@ package de.niklasenglmeier.androidcommon.activitydata
 
 import android.os.Parcel
 import android.os.Parcelable
-import de.niklasenglmeier.androidcommon.firebase.auth.AuthTypes
 
 class AuthenticationData(val appName: String,
                          val showAppNameInSupportActionBar: Boolean,
-                         val showAppIcon: Boolean,
-                         val firebaseInteractionMask: Int,
-                         val authTypes: Int,
+                         val authIcon: Int?,
+                         val flags: Long,
                          val googleAuthId : String?) : Parcelable {
+
+    object Flags {
+        const val EMAIL_LOGIN : Long =                      0b0000_0000_0000_0001
+        const val GOOGLE_LOGIN : Long =                     0b0000_0000_0000_0010
+        const val LOGIN_OPTIONAL : Long =                   0b0000_0000_0000_0100
+
+        const val SHOW_APP_ICON : Long =                    0b0000_0000_0001_0000
+        const val SHOW_APP_NAME_IN_ACTION_BAR : Long =      0b0000_0000_0010_0000
+
+        const val FIREBASE_USE_FIRESTORE : Long =           0b0000_0001_0000_0000
+        const val FIREBASE_USE_REMOTE_CONFIG : Long =       0b0000_0010_0000_0000
+
+        const val ALL_NO_OPTIONAL_LOGIN  : Long =           0b1111_1111_1111_1011
+        const val ALL : Long =                              0b1111_1111_1111_1111
+    }
 
     object IntentKey {
         const val PARCELABLE_EXTRA = "auth_activities_data"
@@ -18,18 +31,16 @@ class AuthenticationData(val appName: String,
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
         parcel.readInt() == 1,
-        parcel.readInt() == 1,
         parcel.readInt(),
-        parcel.readInt(),
+        parcel.readLong(),
         parcel.readString()!!
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(appName)
         parcel.writeInt(if (showAppNameInSupportActionBar) 1 else 0)
-        parcel.writeInt(if (showAppIcon) 1 else 0)
-        parcel.writeInt(firebaseInteractionMask)
-        parcel.writeInt(authTypes)
+        parcel.writeInt(authIcon ?: -1)
+        parcel.writeLong(this.flags)
         parcel.writeString(googleAuthId)
     }
 

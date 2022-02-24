@@ -1,6 +1,5 @@
 package de.niklasenglmeier.androidcommon.firebase.remoteconfig
 
-import android.content.Context
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.ktx.Firebase
@@ -15,7 +14,7 @@ object RemoteConfigFetches {
     const val EMAIL_REGISTRATION_AVAILABLE = "email_registration_available"
     const val REMOTE_CONFIG_MINIMUM_FETCH_INTERVAL = "remote_config_minimum_fetch_interval_in_seconds"
 
-    fun getRemoteConfig(context: Context, onSuccessListener: OnSuccessListener<FirebaseRemoteConfig>, onFailureListener: OnFailureListener, ignoreFetchInterval: Boolean = false) {
+    fun getRemoteConfig(onSuccessListener: OnSuccessListener<FirebaseRemoteConfig>, onFailureListener: OnFailureListener, ignoreFetchInterval: Boolean = false) {
         Firebase.remoteConfig.setConfigSettingsAsync(remoteConfigSettings {
             if(ignoreFetchInterval) {
                 minimumFetchIntervalInSeconds = 0

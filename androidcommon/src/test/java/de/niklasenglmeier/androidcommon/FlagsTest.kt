@@ -1,7 +1,6 @@
 package de.niklasenglmeier.androidcommon
 
 import de.niklasenglmeier.androidcommon.activitydata.AuthenticationData
-import de.niklasenglmeier.androidcommon.extensions.IntExtensions.flagIsSet
 import de.niklasenglmeier.androidcommon.firebase.FirebaseInteractions
 import org.junit.Assert
 import org.junit.Test

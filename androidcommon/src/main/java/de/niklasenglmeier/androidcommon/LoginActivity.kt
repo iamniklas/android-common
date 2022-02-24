@@ -4,21 +4,19 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import de.niklasenglmeier.androidcommon.activitydata.AuthenticationData
 import de.niklasenglmeier.androidcommon.alertdialogs.Dialogs
 import de.niklasenglmeier.androidcommon.databinding.ActivityLoginBinding
-import de.niklasenglmeier.androidcommon.extensions.IntExtensions.flagIsSet
+import de.niklasenglmeier.androidcommon.extensions.LongExtensions.flagIsSet
 import de.niklasenglmeier.androidcommon.extensions.TextInputLayoutExtensions.validateEmailInput
 import de.niklasenglmeier.androidcommon.extensions.TextInputLayoutExtensions.validatePasswordInput
 import de.niklasenglmeier.androidcommon.firebase.FirebaseInteractions
@@ -57,13 +55,13 @@ class LoginActivity : AppCompatActivity() {
                 "${authenticationData.appName} Login"
             else "Login"
 
-        if(authenticationData.showAppIcon) {
+        if(authenticationData.authIcon != null) {
             binding.imageViewLogin.setImageDrawable(getDrawable(R.mipmap.ic_launcher))
         } else {
             binding.imageViewLogin.visibility = View.GONE
         }
 
-        if(authenticationData.authTypes.flagIsSet(AuthTypes.GOOGLE)) {
+        if(authenticationData.flags.flagIsSet(AuthenticationData.Flags.GOOGLE_LOGIN)) {
             val gso =
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(authenticationData.googleAuthId!!)
@@ -75,18 +73,13 @@ class LoginActivity : AppCompatActivity() {
             binding.buttonGoogleSignIn.visibility = View.GONE
         }
 
-        if(!authenticationData.authTypes.flagIsSet(AuthTypes.EMAIL)) {
+        if(!authenticationData.flags.flagIsSet(AuthenticationData.Flags.EMAIL_LOGIN)) {
             binding.buttonLoginEmail.visibility = View.GONE
         }
 
-        if(authenticationData.authTypes == 0) {
-            finishActivityForResult(ResultCode.CANCELED, Exception("Configuration for Login is invalid"))
-        }
-
-        if(authenticationData.firebaseInteractionMask.flagIsSet(FirebaseInteractions.RemoteConfig)) {
+        if(authenticationData.flags.flagIsSet(AuthenticationData.Flags.FIREBASE_USE_REMOTE_CONFIG)) {
             RemoteConfigFetches
                 .getRemoteConfig(
-                    applicationContext,
                     {
                         if(it.getBoolean(RemoteConfigFetches.GOOGLE_LOGIN_AVAILABLE)) {
                             binding.buttonGoogleSignIn.isClickable = true
@@ -147,74 +140,72 @@ class LoginActivity : AppCompatActivity() {
 
             binding.progressBarLogin.isIndeterminate = true
 
-            if(authenticationData.firebaseInteractionMask.flagIsSet(FirebaseInteractions.Authorization)) {
-                FirebaseAuthHandler
-                    .Email
-                    .performEmailLogin(
-                        email,
-                        password,
-                        {
-                            binding.progressBarLogin.isIndeterminate = false
-                            if(!it.user!!.isEmailVerified) {
-                                Dialogs
-                                    .makeEmailNotVerifiedErrorDialog(
-                                        this,
-                                        { },
-                                        {
-                                            Firebase
-                                                .auth
-                                                .currentUser!!
-                                                .sendEmailVerification()
-                                                .addOnSuccessListener {
-                                                    Toast.makeText(
-                                                        applicationContext,
-                                                        "Verification Email sent",
-                                                        Toast.LENGTH_LONG
-                                                    ).show()
-                                                }
-                                                .addOnFailureListener { ex ->
-                                                    Toast.makeText(
-                                                        applicationContext,
-                                                        "Verification Email Error ${ex.message.toString()}",
-                                                        Toast.LENGTH_LONG
-                                                    ).show()
-                                                }
-                                        }
-                                    ).show()
-                            } else {
-                                if(authenticationData.firebaseInteractionMask.flagIsSet(FirebaseInteractions.FirestoreUser)) {
-                                    FirestoreStandardFetches
-                                        .Users
-                                        .getUserInfo(
-                                            true,
-                                            {
-                                                finishActivityForResult(ResultCode.SUCCESS)
-                                            },
-                                            {
-                                                //User Data does not exist
-                                                FirestoreStandardPushes.Users.createNewUserEntry(
-                                                    {
-                                                        finishActivityForResult(ResultCode.SUCCESS)
-                                                    },
-                                                    {
-                                                        finishActivityForResult(ResultCode.ERROR, it)
-                                                    })
-                                            },
-                                            {
-                                                finishActivityForResult(ResultCode.ERROR, it)
+            FirebaseAuthHandler
+                .Email
+                .performEmailLogin(
+                    email,
+                    password,
+                    {
+                        binding.progressBarLogin.isIndeterminate = false
+                        if(!it.user!!.isEmailVerified) {
+                            Dialogs
+                                .makeEmailNotVerifiedErrorDialog(
+                                    this,
+                                    { },
+                                    {
+                                        Firebase
+                                            .auth
+                                            .currentUser!!
+                                            .sendEmailVerification()
+                                            .addOnSuccessListener {
+                                                Toast.makeText(
+                                                    applicationContext,
+                                                    "Verification Email sent",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
                                             }
-                                        )
-                                }
-                                else {
-                                    finishActivityForResult(ResultCode.SUCCESS)
-                                }
+                                            .addOnFailureListener { ex ->
+                                                Toast.makeText(
+                                                    applicationContext,
+                                                    "Verification Email Error ${ex.message.toString()}",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                    }
+                                ).show()
+                        } else {
+                            if(authenticationData.flags.flagIsSet(AuthenticationData.Flags.FIREBASE_USE_FIRESTORE)) {
+                                FirestoreStandardFetches
+                                    .Users
+                                    .getUserInfo(
+                                        true,
+                                        {
+                                            finishActivityForResult(ResultCode.SUCCESS)
+                                        },
+                                        {
+                                            //User Data does not exist
+                                            FirestoreStandardPushes.Users.createNewUserEntry(
+                                                {
+                                                    finishActivityForResult(ResultCode.SUCCESS)
+                                                },
+                                                {
+                                                    finishActivityForResult(ResultCode.ERROR, it)
+                                                })
+                                        },
+                                        {
+                                            finishActivityForResult(ResultCode.ERROR, it)
+                                        }
+                                    )
+                            }
+                            else {
+                                finishActivityForResult(ResultCode.SUCCESS)
                             }
                         }
-                    ) {
-                        binding.progressBarLogin.isIndeterminate = false
-                        Dialogs.makeLoginErrorDialog(this) { }.show()
                     }
-            }
+                ) {
+                    binding.progressBarLogin.isIndeterminate = false
+                    Dialogs.makeLoginErrorDialog(this) { }.show()
+                }
         }
 
         binding.textViewLoginRegister.setOnClickListener {
@@ -240,7 +231,7 @@ class LoginActivity : AppCompatActivity() {
 
                                 Firebase.auth.signInWithCredential(credential)
                                     .addOnSuccessListener {
-                                        if(authenticationData.firebaseInteractionMask.flagIsSet(FirebaseInteractions.FirestoreUser)) {
+                                        if(authenticationData.flags.flagIsSet(AuthenticationData.Flags.FIREBASE_USE_FIRESTORE)) {
                                             FirestoreStandardFetches
                                                 .Users
                                                 .getUserInfo(
