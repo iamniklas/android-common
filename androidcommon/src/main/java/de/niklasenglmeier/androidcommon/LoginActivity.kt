@@ -56,7 +56,7 @@ class LoginActivity : AppCompatActivity() {
             else "Login"
 
         if(authenticationData.authIcon != null) {
-            binding.imageViewLogin.setImageDrawable(getDrawable(R.mipmap.ic_launcher))
+            binding.imageViewLogin.setImageDrawable(getDrawable(authenticationData.authIcon!!))
         } else {
             binding.imageViewLogin.visibility = View.GONE
         }

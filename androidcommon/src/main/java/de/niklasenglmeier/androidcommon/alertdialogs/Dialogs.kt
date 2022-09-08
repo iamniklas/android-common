@@ -2,6 +2,8 @@ package de.niklasenglmeier.androidcommon.alertdialogs
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.Dialog
+import android.content.DialogInterface
 import de.niklasenglmeier.androidcommon.R
 
 
@@ -129,5 +131,57 @@ object Dialogs {
                 setMessage(msg)
             }
             .create()
+    }
+
+    object Custom {
+        fun makeYesNoDialog(activity: Activity,
+                            title: String,
+                            body: String,
+                            imageResource: Int?,
+                            onYesButtonClick : DialogInterface.OnClickListener,
+                            onNoButtonClick : DialogInterface.OnClickListener) : AlertDialog {
+            return AlertDialog.Builder(activity).apply {
+                setTitle(title)
+                setMessage(body)
+                setPositiveButton("Yes", onYesButtonClick)
+                setNegativeButton("No", onNoButtonClick)
+
+                if(imageResource != null) {
+                    setIcon(imageResource)
+                }
+            }.create()
+        }
+
+        fun makeOkDialog(activity: Activity,
+                         title: String,
+                         body: String,
+                         imageResource: Int?,
+                         onOkButtonClick : DialogInterface.OnClickListener) : AlertDialog {
+            return AlertDialog.Builder(activity).apply {
+                setTitle(title)
+                setMessage(body)
+                setPositiveButton(android.R.string.ok, onOkButtonClick)
+
+                if(imageResource != null) {
+                    setIcon(imageResource)
+                }
+            }.create()
+        }
+
+        fun makeRetryDialog(activity: Activity,
+                            title: String,
+                            body: String,
+                            imageResource: Int?,
+                            onRetryButtonClick : DialogInterface.OnClickListener) : AlertDialog {
+            return AlertDialog.Builder(activity).apply {
+                setTitle(title)
+                setMessage(body)
+                setPositiveButton("Retry", onRetryButtonClick)
+
+                if(imageResource != null) {
+                    setIcon(imageResource)
+                }
+            }.create()
+        }
     }
 }

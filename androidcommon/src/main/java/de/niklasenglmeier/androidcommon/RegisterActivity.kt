@@ -41,7 +41,7 @@ internal class RegisterActivity : AppCompatActivity() {
             else "Registration"
 
         if(authenticationData.authIcon != null) {
-            binding.imageViewRegister.setImageDrawable(getDrawable(R.mipmap.ic_launcher))
+            binding.imageViewRegister.setImageDrawable(getDrawable(authenticationData.authIcon!!))
         } else {
             binding.imageViewRegister.visibility = View.GONE
         }
