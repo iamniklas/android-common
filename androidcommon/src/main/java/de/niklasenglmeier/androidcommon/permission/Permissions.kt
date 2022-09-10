@@ -16,8 +16,10 @@ object Permissions {
     }
 
     /**
+     * @param activity The activity which is used to request the permission
      * @param permission The name of the requested permission (Manifest.permission.PERMISSION_NAME)
      * @param requestCode The request code for the permission callback interface (onRequestPermissionsResult)
+     * @return True if the requested permission is already given - otherwise False
      */
     fun requestPermission(activity: Activity, permission: String, requestCode: Int) : Boolean {
         if(!permissionIsGiven(activity.applicationContext, permission)) {
@@ -26,5 +28,14 @@ object Permissions {
         } else {
             return false
         }
+    }
+
+    /**
+     * @param activity The activity which is used to request the permissions
+     * @param permissions An array of permissions to request
+     * @param requestCode The request code for the permission callback interface (onRequestPermissionsResult)
+     */
+    fun requestPermissions(activity: Activity, permissions: Array<String>, requestCode: Int) {
+        ActivityCompat.requestPermissions(activity, permissions, requestCode)
     }
 }
