@@ -164,6 +164,7 @@ internal class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         finishActivityForResult(ResultCode.CANCELED)
     }
