@@ -1,4 +1,4 @@
-package de.niklasenglmeier.androidcommon
+package de.niklasenglmeier.androidcommon.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,14 +13,13 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import de.niklasenglmeier.androidcommon.R
 import de.niklasenglmeier.androidcommon.activitydata.AuthenticationData
 import de.niklasenglmeier.androidcommon.alertdialogs.Dialogs
 import de.niklasenglmeier.androidcommon.databinding.ActivityLoginBinding
 import de.niklasenglmeier.androidcommon.extensions.LongExtensions.flagIsSet
 import de.niklasenglmeier.androidcommon.extensions.TextInputLayoutExtensions.validateEmailInput
 import de.niklasenglmeier.androidcommon.extensions.TextInputLayoutExtensions.validatePasswordInput
-import de.niklasenglmeier.androidcommon.firebase.FirebaseInteractions
-import de.niklasenglmeier.androidcommon.firebase.auth.AuthTypes
 import de.niklasenglmeier.androidcommon.firebase.auth.FirebaseAuthHandler
 import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardFetches
 import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardPushes

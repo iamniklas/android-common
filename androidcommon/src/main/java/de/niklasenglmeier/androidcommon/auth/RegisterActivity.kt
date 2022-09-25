@@ -1,4 +1,4 @@
-package de.niklasenglmeier.androidcommon
+package de.niklasenglmeier.androidcommon.auth
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import de.niklasenglmeier.androidcommon.R
 import de.niklasenglmeier.androidcommon.activitydata.AuthenticationData
 import de.niklasenglmeier.androidcommon.databinding.ActivityRegisterBinding
 import de.niklasenglmeier.androidcommon.extensions.LongExtensions.flagIsSet

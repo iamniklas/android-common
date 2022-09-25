@@ -2,13 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.niklasenglmeier.androidcommon">
 
-    <application
-        android:theme="@style/AppTheme">
+    <application android:theme="@style/AppTheme">
         <activity
-            android:name=".RegisterActivity"
+            android:name=".AuthActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".auth.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".auth.LoginActivity"
             android:exported="false" />
     </application>
 
