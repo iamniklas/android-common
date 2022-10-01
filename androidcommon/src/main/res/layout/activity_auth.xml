@@ -8,6 +8,7 @@
     tools:context=".auth.AuthActivity">
 
     <ViewSwitcher
+        android:id="@+id/auth_viewSwitcher"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -20,10 +21,11 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <fragment
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragment_auth_login"
+                android:name="de.niklasenglmeier.androidcommon.auth.fragments.LoginFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:name="de.niklasenglmeier.androidcommon.auth.fragments.LoginFragment"
                 tools:layout="@layout/fragment_login" />
 
         </LinearLayout>
@@ -33,12 +35,12 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <fragment
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragment_auth_register"
+                android:name="de.niklasenglmeier.androidcommon.auth.fragments.RegisterFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:name="de.niklasenglmeier.androidcommon.auth.fragments.RegisterFragment"
                 tools:layout="@layout/fragment_register" />
-
         </LinearLayout>
 
     </ViewSwitcher>
