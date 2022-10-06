@@ -3,11 +3,15 @@ package de.niklasenglmeier.androidcommon.alertdialogs
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
+import android.app.ProgressDialog
 import android.content.DialogInterface
 import de.niklasenglmeier.androidcommon.R
 
-
 object Dialogs {
+    fun showProgressDialog(activity: Activity, title: String, message: String, indeterminate: Boolean): ProgressDialog {
+        return ProgressDialog.show(activity, title, message, indeterminate)
+    }
+
     fun makeLoginErrorDialog(activity: Activity, onPositiveButtonClicked: () -> Unit) : AlertDialog {
         return AlertDialog.Builder(activity)
             .setTitle("Login Error")

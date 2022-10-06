@@ -65,4 +65,18 @@ object FirebaseAuthHandler {
                 }
         }
     }
+
+    object Anonymous {
+        fun performAnonymousLogin(onSuccessListener: OnSuccessListener<AuthResult>, onFailureListener: OnFailureListener) {
+            Firebase
+                .auth
+                .signInAnonymously()
+                .addOnSuccessListener {
+                    onSuccessListener.onSuccess(it)
+                }
+                .addOnFailureListener {
+                    onFailureListener.onFailure(it)
+                }
+        }
+    }
 }
