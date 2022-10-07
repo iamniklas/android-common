@@ -27,6 +27,7 @@ import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardFetc
 import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardPushes
 import de.niklasenglmeier.androidcommon.firebase.remoteconfig.RemoteConfigFetches
 import de.niklasenglmeier.androidcommon.models.ResultCode
+import de.niklasenglmeier.androidcommon.models.standard.LoginMethod
 
 class LoginFragment : Fragment() {
 
@@ -40,10 +41,6 @@ class LoginFragment : Fragment() {
     private lateinit var authenticationData: AuthenticationData
 
     private lateinit var hostActivity: de.niklasenglmeier.androidcommon.auth.AuthActivity
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -185,6 +182,9 @@ class LoginFragment : Fragment() {
                                         {
                                             //User Data does not exist
                                             FirestoreStandardPushes.Users.createNewUserEntry(
+                                                LoginMethod.Email,
+                                                null,
+                                                null,
                                                 {
                                                     hostActivity.onFragmentFinish(ResultCode.SUCCESS)
                                                 },
@@ -245,6 +245,9 @@ class LoginFragment : Fragment() {
                                                         FirestoreStandardPushes
                                                             .Users
                                                             .createNewUserEntry(
+                                                                LoginMethod.Google,
+                                                                null,
+                                                                null,
                                                                 {
                                                                     hostActivity.onFragmentFinish(ResultCode.SUCCESS)
                                                                 },

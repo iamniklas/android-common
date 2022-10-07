@@ -22,6 +22,7 @@ import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardFetc
 import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardPushes
 import de.niklasenglmeier.androidcommon.firebase.remoteconfig.RemoteConfigFetches
 import de.niklasenglmeier.androidcommon.models.ResultCode
+import de.niklasenglmeier.androidcommon.models.standard.LoginMethod
 
 class RegisterFragment : Fragment() {
 
@@ -137,6 +138,9 @@ class RegisterFragment : Fragment() {
                                             {
                                                 //User Data does not exist
                                                 FirestoreStandardPushes.Users.createNewUserEntry(
+                                                    LoginMethod.Email,
+                                                    null,
+                                                    null,
                                                     {
                                                         binding.progressBarLogin.isIndeterminate = false
                                                         hostActivity.toggleView()

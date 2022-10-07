@@ -2,25 +2,34 @@ package de.niklasenglmeier.androidcommon.firebase.firestore
 
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import de.niklasenglmeier.androidcommon.models.standard.LoginMethod
 import de.niklasenglmeier.androidcommon.models.standard.StandardUserModel
+import de.niklasenglmeier.androidcommon.models.standard.UserLevel
 
 object FirestoreStandardPushes {
     object Users {
-        fun createNewUserEntry(onSuccessListener: OnSuccessListener<StandardUserModel>,
+        fun createNewUserEntry(loginMethod: LoginMethod,
+                               firstName: String?,
+                               lastName: String?,
+                               onSuccessListener: OnSuccessListener<StandardUserModel>,
                                onFailureListener: OnFailureListener
         ) {
-            val displayName = if (Firebase.auth.currentUser!!.displayName == null) Firebase.auth.currentUser!!.email!! else Firebase.auth.currentUser!!.displayName!!
+            val displayName = Firebase.auth.currentUser!!.displayName
+            val email = Firebase.auth.currentUser!!.email
+            val phone = Firebase.auth.currentUser!!.phoneNumber
 
             val user =  StandardUserModel(
                 Firebase.auth.currentUser!!.uid,
-                Timestamp.now(),
-                Timestamp.now(),
+                loginMethod,
                 displayName,
-                false
+                email,
+                phone,
+                firstName,
+                lastName,
+                UserLevel.Default
             )
 
             Firebase.firestore
@@ -32,11 +41,15 @@ object FirestoreStandardPushes {
         }
     }
 
-    fun StandardUserModel.toHashMap() : HashMap<String, Any> {
+    fun StandardUserModel.toHashMap() : HashMap<String, String?> {
         return hashMapOf(
-            "date_of_creation" to dateOfCreation,
+            "login_method" to loginMethod.toString(),
             "display_name" to displayName,
-            "last_login" to lastLogin,
+            "email" to email,
+            "phone" to phoneNumber,
+            "first_name" to firstName,
+            "last_name" to lastName,
+            "user_level" to userLevel.toString()
         )
     }
 }

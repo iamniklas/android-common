@@ -7,7 +7,9 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import de.niklasenglmeier.androidcommon.models.standard.LoginMethod
 import de.niklasenglmeier.androidcommon.models.standard.StandardUserModel
+import de.niklasenglmeier.androidcommon.models.standard.UserLevel
 
 object FirestoreStandardFetches {
 
@@ -38,13 +40,16 @@ object FirestoreStandardFetches {
         }
     }
 
-    private fun StandardUserModel.Companion.fromDocument(docSnap: DocumentSnapshot) : StandardUserModel {
+    fun StandardUserModel.Companion.fromDocument(docSnap: DocumentSnapshot) : StandardUserModel {
         return StandardUserModel(
             docSnap.id,
-            docSnap.getTimestamp("date_of_creation")!!,
-            docSnap.getTimestamp("last_login")!!,
-            docSnap.getString("display_name")!!,
-            docSnap.contains("is_admin")
+            LoginMethod.valueOf(docSnap.getString("login_method")!!),
+            docSnap.getString("display_name"),
+            docSnap.getString("email"),
+            docSnap.getString("phone_number"),
+            docSnap.getString("first_name"),
+            docSnap.getString("last_name"),
+            UserLevel.valueOf(docSnap.getString("user_level")!!)
         )
     }
 }
