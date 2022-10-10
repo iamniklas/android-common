@@ -13,6 +13,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -32,7 +33,6 @@ import de.niklasenglmeier.androidcommon.models.standard.LoginMethod
 class LoginFragment : Fragment() {
 
     private val RC_SIGN_IN = 1
-    private val RC_REGISTER = 2
 
     private lateinit var googleSignInClient: GoogleSignInClient
 
@@ -40,7 +40,7 @@ class LoginFragment : Fragment() {
 
     private lateinit var authenticationData: AuthenticationData
 
-    private lateinit var hostActivity: de.niklasenglmeier.androidcommon.auth.AuthActivity
+    private lateinit var hostActivity: AuthActivity
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,7 +48,7 @@ class LoginFragment : Fragment() {
     ): View {
         binding = FragmentLoginBinding.inflate(layoutInflater)
 
-        hostActivity = requireActivity() as de.niklasenglmeier.androidcommon.auth.AuthActivity
+        hostActivity = requireActivity() as AuthActivity
 
         authenticationData = hostActivity.authData
 
@@ -168,12 +168,7 @@ class LoginFragment : Fragment() {
                                                 ).show()
                                             }
                                             .addOnFailureListener { ex ->
-
-                                                Toast.makeText(
-                                                    requireContext(),
-                                                    "Verification Email Error ${ex.message.toString()}",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
+                                                hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_ACCOUNT_NOT_VERIFIED, ex)
                                             }
                                     }
                                 ).show()
@@ -199,17 +194,21 @@ class LoginFragment : Fragment() {
                                                     hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_LOGIN_CREATE_FIRESTORE_DATA, userError)
                                                 })
                                         },
-                                        {
-                                            hostActivity.onFragmentFinish(AuthActivity.Result.ERR, it)
+                                        { userInfoError ->
+                                            hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_USER_DATA_FETCH_OR_INVALID, userInfoError)
                                         }
                                     )
                             }
                             else {
-                                hostActivity.onFragmentFinish(ResultCode.SUCCESS)
+                                hostActivity.onFragmentFinish(AuthActivity.Result.EMAIL_LOGIN_SUCCESS)
                             }
                         }
                     }
                 ) {
+                    if(it::class == FirebaseAuthInvalidUserException::class) {
+                        hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_LOGIN_ACCOUNT_DISABLED, it)
+                        return@performEmailLogin
+                    }
                     binding.progressBarLogin.isIndeterminate = false
                     Dialogs.makeLoginErrorDialog(requireActivity()) { }.show()
                 }
@@ -245,7 +244,7 @@ class LoginFragment : Fragment() {
                                                 .getUserInfo(
                                                     true,
                                                     {
-                                                        hostActivity.onFragmentFinish(ResultCode.SUCCESS)
+                                                        hostActivity.onFragmentFinish(AuthActivity.Result.GOOGLE_LOGIN_SUCCESS)
                                                     },
                                                     {
                                                         //User Data does not exist
@@ -256,22 +255,26 @@ class LoginFragment : Fragment() {
                                                                 null,
                                                                 null,
                                                                 {
-                                                                    hostActivity.onFragmentFinish(ResultCode.SUCCESS)
+                                                                    hostActivity.onFragmentFinish(AuthActivity.Result.GOOGLE_LOGIN_SUCCESS)
                                                                 },
                                                                 {
-                                                                    hostActivity.onFragmentFinish(ResultCode.ERROR, it)
+                                                                    hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_LOGIN_CREATE_FIRESTORE_DATA, it)
                                                                 }
                                                             )
                                                     },
                                                     {
-                                                        Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
+                                                        hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_USER_DATA_FETCH_OR_INVALID, it)
                                                     })
                                         } else {
-                                            hostActivity.onFragmentFinish(ResultCode.SUCCESS)
+                                            hostActivity.onFragmentFinish(AuthActivity.Result.GOOGLE_LOGIN_SUCCESS)
                                         }
                                     }
                                     .addOnFailureListener { signInWithCredentialError ->
-                                        hostActivity.onFragmentFinish(ResultCode.ERROR, signInWithCredentialError)
+                                        if(signInWithCredentialError::class == FirebaseAuthInvalidUserException::class) {
+                                            hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_LOGIN_ACCOUNT_DISABLED, signInWithCredentialError)
+                                            return@addOnFailureListener
+                                        }
+                                        hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_GOOGLE_LOGIN_DEVELOPER_ERROR, signInWithCredentialError)
                                     }
                                     .addOnCompleteListener {
                                         binding.progressBarLogin.isIndeterminate = false
@@ -279,26 +282,18 @@ class LoginFragment : Fragment() {
 
                             } catch (e: ApiException) {
                                 binding.progressBarLogin.isIndeterminate = false
-                                hostActivity.onFragmentFinish(ResultCode.ERROR, e)
+                                hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_GOOGLE_LOGIN_DEVELOPER_ERROR, e)
                             }
                         } else {
                             binding.progressBarLogin.isIndeterminate = false
-                            hostActivity.onFragmentFinish(ResultCode.ERROR, Exception("Auth-Task not successful"))
+                            hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_GOOGLE_LOGIN_DEVELOPER_ERROR, Exception("Auth-Task not successful"))
                         }
                     }
                     .addOnFailureListener { signedInAccountFromIntentError ->
                         binding.progressBarLogin.isIndeterminate = false
-                        hostActivity.onFragmentFinish(ResultCode.ERROR, signedInAccountFromIntentError)
+                        hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_GOOGLE_LOGIN_DEVELOPER_ERROR, signedInAccountFromIntentError)
                     }
             }
-
-            RC_REGISTER -> {
-
-            }
         }
-    }
-
-    companion object {
-        const val RESULT_EXTRA_ERROR_MESSAGE = "error_message"
     }
 }

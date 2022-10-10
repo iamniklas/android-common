@@ -31,10 +31,6 @@ class RegisterFragment : Fragment() {
 
     private lateinit var hostActivity: AuthActivity
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -132,7 +128,7 @@ class RegisterFragment : Fragment() {
                                             true,
                                             {
                                                 binding.progressBarLogin.isIndeterminate = false
-                                                hostActivity.onFragmentFinish(AuthActivity.Result.REGISTER_SUCCESS)
+                                                hostActivity.toggleView()
                                             },
                                             {
                                                 //User Data does not exist
@@ -150,12 +146,12 @@ class RegisterFragment : Fragment() {
                                                     })
                                             },
                                             {
-                                                hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_REGISTER_FETCH_USER_DATA, it)
+                                                hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_USER_DATA_FETCH_OR_INVALID, it)
                                             }
                                         )
                                 } else {
                                     binding.progressBarLogin.isIndeterminate = false
-                                    hostActivity.onFragmentFinish(AuthActivity.Result.REGISTER_SUCCESS_WITHOUT_FIREBASE)
+                                    hostActivity.toggleView()
                                 }
                             }
                     },
