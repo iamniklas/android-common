@@ -21,7 +21,6 @@ import de.niklasenglmeier.androidcommon.firebase.auth.FirebaseAuthHandler
 import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardFetches
 import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardPushes
 import de.niklasenglmeier.androidcommon.firebase.remoteconfig.RemoteConfigFetches
-import de.niklasenglmeier.androidcommon.models.ResultCode
 import de.niklasenglmeier.androidcommon.models.standard.LoginMethod
 
 class RegisterFragment : Fragment() {
@@ -64,7 +63,7 @@ class RegisterFragment : Fragment() {
                     }
                 },
                 { remoteConfigFetchError ->
-                    hostActivity.onFragmentFinish(ResultCode.ERROR, remoteConfigFetchError)
+                    hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_FETCH_REMOTE_CONFIG, remoteConfigFetchError)
                 }
             )
         }
@@ -123,7 +122,7 @@ class RegisterFragment : Fragment() {
                                 Toast.makeText(requireContext(), "Verification Email sent", Toast.LENGTH_LONG).show()
                             }
                             .addOnFailureListener { sendEmailVerificationError ->
-                                Toast.makeText(requireContext(), "Verification Email Error ${sendEmailVerificationError.message.toString()}", Toast.LENGTH_LONG).show()
+                                hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_REGISTER_SEND_VERIFICATION_EMAIL, sendEmailVerificationError)
                             }
                             .addOnCompleteListener {
                                 if(authenticationData.flags.flagIsSet(AuthenticationData.Flags.FIREBASE_USE_FIRESTORE)) {
@@ -133,7 +132,7 @@ class RegisterFragment : Fragment() {
                                             true,
                                             {
                                                 binding.progressBarLogin.isIndeterminate = false
-                                                hostActivity.onFragmentFinish(ResultCode.SUCCESS)
+                                                hostActivity.onFragmentFinish(AuthActivity.Result.REGISTER_SUCCESS)
                                             },
                                             {
                                                 //User Data does not exist
@@ -147,22 +146,21 @@ class RegisterFragment : Fragment() {
                                                     },
                                                     { userDataCreationError ->
                                                         binding.progressBarLogin.isIndeterminate = false
-                                                        hostActivity.onFragmentFinish(ResultCode.ERROR, userDataCreationError)
+                                                        hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_REGISTER_CREATE_FIRESTORE_DATA, userDataCreationError)
                                                     })
                                             },
                                             {
-                                                Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
+                                                hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_REGISTER_FETCH_USER_DATA, it)
                                             }
                                         )
                                 } else {
                                     binding.progressBarLogin.isIndeterminate = false
-                                    hostActivity.onFragmentFinish(ResultCode.SUCCESS)
+                                    hostActivity.onFragmentFinish(AuthActivity.Result.REGISTER_SUCCESS_WITHOUT_FIREBASE)
                                 }
                             }
                     },
                     { emailRegistrationError ->
-                        Toast.makeText(requireContext(), emailRegistrationError.message, Toast.LENGTH_LONG).show()
-                        hostActivity.onFragmentFinish(ResultCode.ERROR, emailRegistrationError)
+                        hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_REGISTER, emailRegistrationError)
                     },
                     { }
                 )

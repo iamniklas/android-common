@@ -18,6 +18,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import de.niklasenglmeier.androidcommon.activitydata.AuthenticationData
 import de.niklasenglmeier.androidcommon.alertdialogs.Dialogs
+import de.niklasenglmeier.androidcommon.auth.AuthActivity
 import de.niklasenglmeier.androidcommon.databinding.FragmentLoginBinding
 import de.niklasenglmeier.androidcommon.extensions.LongExtensions.flagIsSet
 import de.niklasenglmeier.androidcommon.extensions.TextInputLayoutExtensions.validateEmailInput
@@ -26,7 +27,6 @@ import de.niklasenglmeier.androidcommon.firebase.auth.FirebaseAuthHandler
 import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardFetches
 import de.niklasenglmeier.androidcommon.firebase.firestore.FirestoreStandardPushes
 import de.niklasenglmeier.androidcommon.firebase.remoteconfig.RemoteConfigFetches
-import de.niklasenglmeier.androidcommon.models.ResultCode
 import de.niklasenglmeier.androidcommon.models.standard.LoginMethod
 
 class LoginFragment : Fragment() {
@@ -51,6 +51,12 @@ class LoginFragment : Fragment() {
         hostActivity = requireActivity() as de.niklasenglmeier.androidcommon.auth.AuthActivity
 
         authenticationData = hostActivity.authData
+
+        if(authenticationData.flags.flagIsSet(AuthenticationData.Flags.LOGIN_OPTIONAL)) {
+            binding.textViewLoginHint.text = "Login by one of the following methods to use all features of ${authenticationData.appName}"
+        } else {
+            binding.textViewLoginHint.text = "To continue using ${authenticationData.appName}, please login by one of the available options"
+        }
 
         if(authenticationData.authIcon != null) {
             binding.imageViewLogin.setImageDrawable(ContextCompat.getDrawable(requireContext(), authenticationData.authIcon!!))
@@ -90,7 +96,7 @@ class LoginFragment : Fragment() {
                         }
                     },
                     {
-                        hostActivity.onFragmentFinish(ResultCode.ERROR, it)
+                        hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_FETCH_REMOTE_CONFIG, it)
                     }
                 )
         } else {
@@ -162,6 +168,7 @@ class LoginFragment : Fragment() {
                                                 ).show()
                                             }
                                             .addOnFailureListener { ex ->
+
                                                 Toast.makeText(
                                                     requireContext(),
                                                     "Verification Email Error ${ex.message.toString()}",
@@ -177,7 +184,7 @@ class LoginFragment : Fragment() {
                                     .getUserInfo(
                                         true,
                                         {
-                                            hostActivity.onFragmentFinish(ResultCode.SUCCESS)
+                                            hostActivity.onFragmentFinish(AuthActivity.Result.EMAIL_LOGIN_SUCCESS)
                                         },
                                         {
                                             //User Data does not exist
@@ -186,14 +193,14 @@ class LoginFragment : Fragment() {
                                                 null,
                                                 null,
                                                 {
-                                                    hostActivity.onFragmentFinish(ResultCode.SUCCESS)
+                                                    hostActivity.onFragmentFinish(AuthActivity.Result.EMAIL_LOGIN_SUCCESS)
                                                 },
                                                 { userError ->
-                                                    hostActivity.onFragmentFinish(ResultCode.ERROR, userError)
+                                                    hostActivity.onFragmentFinish(AuthActivity.Result.ERROR_LOGIN_CREATE_FIRESTORE_DATA, userError)
                                                 })
                                         },
                                         {
-                                            hostActivity.onFragmentFinish(ResultCode.ERROR, it)
+                                            hostActivity.onFragmentFinish(AuthActivity.Result.ERR, it)
                                         }
                                     )
                             }

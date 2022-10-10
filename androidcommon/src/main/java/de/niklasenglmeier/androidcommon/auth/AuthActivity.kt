@@ -9,6 +9,30 @@ import de.niklasenglmeier.androidcommon.databinding.ActivityAuthBinding
 
 class AuthActivity : AppCompatActivity() {
 
+    enum class Result {
+        GOOGLE_LOGIN_SUCCESS,
+        EMAIL_LOGIN_SUCCESS,
+        ANONYMOUS_LOGIN_SUCCESS,
+        LOGIN_SKIPPED,
+        REGISTER_SUCCESS,
+        REGISTER_SUCCESS_WITHOUT_FIREBASE,
+
+        ERROR_REGISTER,
+        ERROR_REGISTER_CREATE_FIRESTORE_DATA,
+        ERROR_REGISTER_FETCH_USER_DATA,
+        ERROR_REGISTER_SEND_VERIFICATION_EMAIL,
+
+        ERROR_LOGIN_ACCOUNT_DISABLED,
+        ERROR_LOGIN_CREATE_FIRESTORE_DATA,
+        ERROR_LOGIN_FETCH_USER_DATA,
+        ERROR_LOGIN_METHOD_NOT_ALLOWED,
+        ERROR_LOGIN_USER_DATA_INVALID,
+
+        ERROR_FETCH_REMOTE_CONFIG,
+
+        UNKNOWN_ERROR
+    }
+
     private lateinit var binding: ActivityAuthBinding
     lateinit var authData: AuthenticationData
 
@@ -29,13 +53,13 @@ class AuthActivity : AppCompatActivity() {
             else "Login"
     }
 
-    fun onFragmentFinish(resultCode: Int, error: Exception? = null) {
+    fun onFragmentFinish(resultCode: Result, error: Exception? = null) {
         val data = Intent()
         if(error != null) {
             data.putExtra("error_name", error.javaClass.toString())
             data.putExtra("error_message", error.message)
         }
-        setResult(resultCode, data)
+        setResult(resultCode.ordinal, data)
         finish()
     }
 

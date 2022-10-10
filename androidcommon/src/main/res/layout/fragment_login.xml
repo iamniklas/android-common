@@ -80,7 +80,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout_login_password" />
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/linearLayout_login_signInButtons"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
