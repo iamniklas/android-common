@@ -8,7 +8,7 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 
 object RemoteConfigFetches {
-    const val DEBUG_MODE_ENABLED = "debug_mode_active"
+    const val DEBUG_MODE_ACTIVE = "debug_mode_active"
     const val GOOGLE_LOGIN_AVAILABLE = "google_login_available"
     const val EMAIL_LOGIN_AVAILABLE = "email_login_available"
     const val EMAIL_REGISTRATION_AVAILABLE = "email_registration_available"

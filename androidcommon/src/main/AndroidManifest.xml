@@ -6,6 +6,13 @@
 
     <application android:theme="@style/AppTheme">
         <activity
+            android:name=".user.UserInfoActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".auth.AuthActivity"
             android:exported="false">
             <meta-data
