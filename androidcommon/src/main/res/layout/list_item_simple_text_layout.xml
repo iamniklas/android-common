@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
+        android:textSize="20sp"
         app:autoSizeMaxTextSize="22sp"
         app:autoSizeMinTextSize="16sp"
         app:autoSizeTextType="uniform"
