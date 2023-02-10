@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Switch xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/switch_editor"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="32dp"
+    android:text="Switch"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"/>
