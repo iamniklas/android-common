@@ -485,7 +485,6 @@ class GenericObjectEditorActivity<T : Parcelable> : AppCompatActivity() {
                                 linearLayout.addView(v)
                             }
                         }
-
                     }
                 }
             }
