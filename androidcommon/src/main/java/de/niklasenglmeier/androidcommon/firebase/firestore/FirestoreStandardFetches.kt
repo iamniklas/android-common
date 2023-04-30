@@ -21,7 +21,19 @@ object FirestoreStandardFetches {
                 return
             }
 
-            Firebase.firestore
+            var user = StandardUserModel()
+            user.documentId = Firebase.auth.uid!!
+            user.fetch<StandardUserModel>(
+                {
+                    user = it
+                    onSuccessListener.onSuccess(user)
+                },
+                {
+                    onFailureListener.onFailure(it)
+                }
+            )
+
+            /*Firebase.firestore
                 .collection("Users")
                 .document(Firebase.auth.uid!!)
                 .get()
@@ -36,20 +48,7 @@ object FirestoreStandardFetches {
                 }
                 .addOnFailureListener {
                     onFailureListener.onFailure(it)
-                }
+                }*/
         }
-    }
-
-    fun StandardUserModel.Companion.fromDocument(docSnap: DocumentSnapshot) : StandardUserModel {
-        return StandardUserModel(
-            docSnap.id,
-            LoginMethod.valueOf(docSnap.getString("login_method")!!),
-            docSnap.getString("display_name"),
-            docSnap.getString("email"),
-            docSnap.getString("phone_number"),
-            docSnap.getString("first_name"),
-            docSnap.getString("last_name"),
-            UserLevel.valueOf(docSnap.getString("user_level")!!)
-        )
     }
 }

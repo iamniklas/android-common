@@ -22,7 +22,6 @@ object FirestoreStandardPushes {
             val phone = Firebase.auth.currentUser!!.phoneNumber
 
             val user =  StandardUserModel(
-                Firebase.auth.currentUser!!.uid,
                 loginMethod,
                 displayName,
                 email,
@@ -32,24 +31,10 @@ object FirestoreStandardPushes {
                 UserLevel.Default
             )
 
-            Firebase.firestore
-                .collection("Users")
-                .document(Firebase.auth.currentUser!!.uid)
-                .set(user.toHashMap())
-                .addOnSuccessListener { onSuccessListener.onSuccess(user) }
-                .addOnFailureListener { onFailureListener.onFailure(it) }
+            user.push(
+                { onSuccessListener.onSuccess(it as StandardUserModel) },
+                { onFailureListener.onFailure(it) }
+            )
         }
-    }
-
-    fun StandardUserModel.toHashMap() : HashMap<String, String?> {
-        return hashMapOf(
-            "login_method" to loginMethod.toString(),
-            "display_name" to displayName,
-            "email" to email,
-            "phone" to phoneNumber,
-            "first_name" to firstName,
-            "last_name" to lastName,
-            "user_level" to userLevel.toString()
-        )
     }
 }
